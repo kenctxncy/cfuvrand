@@ -6,3 +6,5 @@ publish.workspace = true
 license.workspace = true
 
 [dependencies]
+crossterm = "0.28.1"
+ratatui = "0.28.1"
