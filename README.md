@@ -1,2 +1,2 @@
 # cfuvrand
-A command line app written on Rust
+A command line app written in Rust
