@@ -1,6 +1,19 @@
-[package]
-name = "cfuvrand"
-version = "0.1.0"
-edition = "2021"
+cargo-features = [ "profile-rustflags" ]
 
-[dependencies]
+[workspace]
+resolver = "2"
+members = [
+    "cfuvrand",
+]
+
+[workspace.package]
+edition = "2021"
+publish = false
+license = "GPL-3.0-only"
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true
+panic = "abort"
+rustflags = [ "-Zlocation-detail=none" ]
