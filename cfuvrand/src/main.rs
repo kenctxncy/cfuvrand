@@ -117,8 +117,7 @@ fn main() -> io::Result<()> {
     let mut stdout = stdout.lock();
     enable_raw_mode()?;
     crossterm::execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-    let backend = CrosstermBackend::new(stdout);
-    let mut term = Terminal::new(backend)?;
+    let mut term = ratatui::init();
 
     Model::new().run(&mut term)?;
 
