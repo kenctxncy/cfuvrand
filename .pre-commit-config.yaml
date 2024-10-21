@@ -9,3 +9,13 @@ repos:
     - id: check-merge-conflict
     - id: check-illegal-windows-names
     - id: check-case-conflict
+-   repo: https://github.com/FeryET/pre-commit-rust
+    rev: v1.1.1
+    hooks:
+    - id: fmt
+    - id: cargo-check
+-   repo: https://github.com/FeryET/pre-commit-rust
+    rev: v1.1.1
+    hooks:
+    - id: build
+    - id: test
