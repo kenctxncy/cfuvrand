@@ -6,14 +6,14 @@ use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
 use ratatui::{
     buffer::Buffer,
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Style, Stylize},
-    symbols::border,
-    text::{Line, Text},
-    widgets::{Block, Borders, Padding, Paragraph, Widget, Wrap},
+    widgets::{Block, Borders, Padding, Widget},
 };
 use std::io;
 use tui_textarea::{Input, Key, TextArea};
+
+mod ui;
 
 #[derive(Default, Debug, PartialEq)]
 enum SelectedPane {
@@ -29,52 +29,14 @@ struct Model<'a> {
     exit: bool,
 }
 
-const EMPTY_BORDER: border::Set = border::Set {
-    top_left: " ",
-    bottom_left: " ",
-    vertical_left: " ",
-    top_right: " ",
-    bottom_right: " ",
-    vertical_right: " ",
-    horizontal_top: " ",
-    horizontal_bottom: " ",
-};
-
-const TILDES_BORDER: border::Set = border::Set {
-    bottom_left: "~",
-    vertical_left: "~",
-    ..EMPTY_BORDER
-};
-const COLON_BORDER: border::Set = border::Set {
-    top_left: ":",
-    bottom_left: ":",
-    vertical_left: ":",
-    ..EMPTY_BORDER
-};
-
-fn intro_paragraph<'a>() -> Paragraph<'a> {
-    let text = Text::from(vec![
-        Line::raw("CFUVRand — CFU Vernandskogo Randomizer"),
-        Line::default(),
-        Line::raw(format!("version {}", env!("CARGO_PKG_VERSION"))),
-        Line::raw("CFUVRand is open source and freely distributable"),
-    ]);
-    Paragraph::new(text)
-        .alignment(Alignment::Center)
-        .wrap(Wrap { trim: true })
-}
-
-fn cmd_placeholder_paragraph<'a>() -> Paragraph<'a> {
-    Paragraph::new("0,0-1     All")
-        .alignment(Alignment::Right)
-        .block(Block::new().padding(Padding::horizontal(2)))
-}
-
 impl Model<'_> {
     fn new() -> Self {
         let mut m = Self::default();
-        m.input_area
-            .set_block(Block::new().borders(Borders::LEFT).border_set(COLON_BORDER));
+        m.input_area.set_block(
+            Block::new()
+                .borders(Borders::LEFT)
+                .border_set(ui::COLON_BORDER),
+        );
         m.input_area.set_cursor_line_style(Style::default());
         m
     }
@@ -136,16 +98,16 @@ impl Widget for &Model<'_> {
             .direction(Direction::Vertical)
             .constraints(vec![Constraint::Fill(1), Constraint::Max(1)])
             .split(area);
-        let text = intro_paragraph();
+        let text = ui::intro_paragraph();
         let block = Block::bordered()
             .padding(Padding::vertical(layout[0].height / 2 - 4))
-            .border_set(TILDES_BORDER)
+            .border_set(ui::TILDES_BORDER)
             .border_style(Style::new().blue());
 
         text.block(block).render(layout[0], buf);
         match self.selected_pane {
             SelectedPane::CommandInput => self.input_area.render(layout[1], buf),
-            _ => cmd_placeholder_paragraph().render(layout[1], buf),
+            _ => ui::cmd_placeholder_paragraph().render(layout[1], buf),
         }
     }
 }
