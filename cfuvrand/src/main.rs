@@ -7,37 +7,31 @@ use ratatui::Terminal;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Style, Stylize},
-    widgets::{Block, Borders, Widget},
+    style::Style,
+    widgets::{Block, Borders, Padding, Paragraph, Widget},
 };
 use std::io;
 use tui_textarea::{Input, Key, TextArea};
 
 mod ui;
 
-#[derive(Default, Debug, PartialEq)]
-enum SelectedPane {
-    #[default]
-    None,
-    CommandInput,
-}
-
 #[derive(Debug, Default)]
 struct Model<'a> {
-    input_area: TextArea<'a>,
-    selected_pane: SelectedPane,
+    command_mode: bool,
+    command_input: TextArea<'a>,
+    page: ui::Page<'a>,
     exit: bool,
 }
 
 impl Model<'_> {
     fn new() -> Self {
         let mut m = Self::default();
-        m.input_area.set_block(
+        m.command_input.set_block(
             Block::new()
                 .borders(Borders::LEFT)
                 .border_set(ui::COLON_BORDER),
         );
-        m.input_area.set_cursor_line_style(Style::default());
+        m.command_input.set_cursor_line_style(Style::default());
         m
     }
     fn run<W>(&mut self, terminal: &mut Terminal<CrosstermBackend<W>>) -> io::Result<()>
@@ -51,10 +45,10 @@ impl Model<'_> {
         Ok(())
     }
     fn handlers(&mut self) -> io::Result<()> {
-        match self.selected_pane {
-            SelectedPane::CommandInput => match crossterm::event::read()?.into() {
+        if self.command_mode {
+            match crossterm::event::read()?.into() {
                 Input { key: Key::Esc, .. } => {
-                    self.selected_pane = SelectedPane::None;
+                    self.command_mode = false;
                 }
                 Input {
                     key: Key::Char('m'),
@@ -65,7 +59,7 @@ impl Model<'_> {
                 Input {
                     key: Key::Enter, ..
                 } => {
-                    let cmd = self.input_area.lines()[0].trim();
+                    let cmd = self.command_input.lines()[0].trim();
                     match cmd {
                         "help" => panic!("Помощи нет"),
                         _ if cmd.starts_with("q") => {
@@ -75,18 +69,15 @@ impl Model<'_> {
                     }
                 }
                 input => {
-                    self.input_area.input(input);
-                }
-            },
-            SelectedPane::None => {
-                if let Input {
-                    key: Key::Char(':'),
-                    ..
-                } = crossterm::event::read()?.into()
-                {
-                    self.selected_pane = SelectedPane::CommandInput;
+                    self.command_input.input(input);
                 }
             }
+        } else if let Input {
+            key: Key::Char(':'),
+            ..
+        } = crossterm::event::read()?.into()
+        {
+            self.command_mode = true;
         }
         Ok(())
     }
@@ -98,16 +89,15 @@ impl Widget for &Model<'_> {
             .direction(Direction::Vertical)
             .constraints(vec![Constraint::Fill(1), Constraint::Max(1)])
             .split(area);
-        let text = ui::intro_paragraph();
-        let block = Block::bordered()
-            .padding(ui::vertical_center(&text, &layout[0]))
-            .border_set(ui::TILDES_BORDER)
-            .border_style(Style::new().blue());
+        self.page.render(layout[0], buf);
 
-        text.block(block).render(layout[0], buf);
-        match self.selected_pane {
-            SelectedPane::CommandInput => self.input_area.render(layout[1], buf),
-            _ => ui::cmd_placeholder_paragraph().render(layout[1], buf),
+        if self.command_mode {
+            self.command_input.render(layout[1], buf);
+        } else {
+            Paragraph::new("0,0-1     All")
+                .right_aligned()
+                .block(Block::new().padding(Padding::horizontal(2)))
+                .render(layout[1], buf);
         }
     }
 }

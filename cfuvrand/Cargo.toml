@@ -7,5 +7,5 @@ license.workspace = true
 
 [dependencies]
 crossterm = "0.28.1"
-ratatui = { version = "0.28.1", features = ["crossterm", "unstable-rendered-line-info"] }
+ratatui = { version = "0.28.1", features = ["crossterm" ] }
 tui-textarea = "0.6.1"
