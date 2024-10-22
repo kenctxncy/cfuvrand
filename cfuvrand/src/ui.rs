@@ -9,7 +9,6 @@ use ratatui::{
 
 #[derive(Debug)]
 pub enum Page<'a> {
-    #[non_exhaustive]
     Text(Text<'a>),
 }
 impl Default for Page<'_> {
