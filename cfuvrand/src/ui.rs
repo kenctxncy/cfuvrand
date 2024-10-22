@@ -1,4 +1,5 @@
 use ratatui::{
+    layout::Rect,
     symbols::border,
     text::{Line, Text},
     widgets::{Block, Padding, Paragraph, Wrap},
@@ -42,4 +43,8 @@ pub fn cmd_placeholder_paragraph<'a>() -> Paragraph<'a> {
     Paragraph::new("0,0-1     All")
         .right_aligned()
         .block(Block::new().padding(Padding::horizontal(2)))
+}
+
+pub fn vertical_center(w: &ratatui::widgets::Paragraph, area: &Rect) -> Padding {
+    Padding::vertical(area.height / 2 - w.line_count(area.width).try_into().unwrap_or(u16::MAX))
 }

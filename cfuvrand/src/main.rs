@@ -8,7 +8,7 @@ use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Style, Stylize},
-    widgets::{Block, Borders, Padding, Widget},
+    widgets::{Block, Borders, Widget},
 };
 use std::io;
 use tui_textarea::{Input, Key, TextArea};
@@ -100,7 +100,7 @@ impl Widget for &Model<'_> {
             .split(area);
         let text = ui::intro_paragraph();
         let block = Block::bordered()
-            .padding(Padding::vertical(layout[0].height / 2 - 4))
+            .padding(ui::vertical_center(&text, &layout[0]))
             .border_set(ui::TILDES_BORDER)
             .border_style(Style::new().blue());
 
