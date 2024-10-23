@@ -65,8 +65,12 @@ impl Model<'_> {
                         _ if cmd.starts_with("q") => {
                             self.exit = true;
                         }
+                        "example" => self.page = ui::Page::Example,
                         _ => {}
                     }
+                    self.command_input.delete_line_by_end();
+                    self.command_input.delete_line_by_head();
+                    self.command_mode = false;
                 }
                 input => {
                     self.command_input.input(input);

@@ -1,6 +1,6 @@
 use ratatui::{
     buffer::Buffer,
-    layout::Rect,
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Style, Stylize},
     symbols::border,
     text::{Line, Text},
@@ -10,6 +10,7 @@ use ratatui::{
 #[derive(Debug)]
 pub enum Page<'a> {
     Text(Text<'a>),
+    Example,
 }
 impl Default for Page<'_> {
     fn default() -> Self {
@@ -29,6 +30,15 @@ impl Widget for &Page<'_> {
                     .wrap(Wrap { trim: true })
                     .block(block)
                     .render(area, buf);
+            }
+            Page::Example => {
+                let layout = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .constraints(Constraint::from_fills([1, 1]))
+                    .split(area);
+                let text = intro_text();
+                text.clone().render(layout[0], buf);
+                text.render(layout[1], buf);
             }
         }
     }
