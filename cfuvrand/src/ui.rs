@@ -7,10 +7,14 @@ use ratatui::{
     widgets::{Block, Padding, Paragraph, Widget, Wrap},
 };
 
+use std::fs::File;
+use std::io::{self, BufRead, BufReader};
+
 #[derive(Debug)]
 pub enum Page<'a> {
     Text(Text<'a>),
     Example,
+    ForgiveMePlease,
 }
 impl Default for Page<'_> {
     fn default() -> Self {
@@ -39,6 +43,21 @@ impl Widget for &Page<'_> {
                 let text = intro_text();
                 text.clone().render(layout[0], buf);
                 text.render(layout[1], buf);
+            }
+            Page::ForgiveMePlease => {
+                let layout = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .constraints(Constraint::from_fills([1, 1]))
+                    .split(area);
+                match netlander_text() {
+                    Ok(text) => {
+                        text.clone().render(layout[0], buf);
+                        //text.render(layout[1], buf);
+                    }
+                    Err(err) => {
+                        eprintln!("Ошибка xD {:?}", err);
+                    }
+                };
             }
         }
     }
@@ -75,6 +94,23 @@ pub fn intro_text<'a>() -> Text<'a> {
         Line::raw(format!("version {}", env!("CARGO_PKG_VERSION"))),
         Line::raw("CFUVRand is open source and freely distributable"),
     ])
+}
+
+pub fn netlander_text<'a>() -> Result<Text<'a>, io::Error> {
+    fn parse<'a>() -> Result<Vec<Line<'a>>, io::Error> {
+        let mut rows = Vec::new();
+        let file = File::open("./cfuvrand/res/netlander.txt")?;
+        let reader = BufReader::new(file);
+
+        for line in reader.lines() {
+            let line = line?;
+            rows.push(Line::raw(line));
+        }
+        Ok(rows)
+    }
+
+    let rows = parse()?;
+    Ok(Text::from(rows))
 }
 
 pub fn vertical_center(w: &Text, area: &Rect) -> Padding {
