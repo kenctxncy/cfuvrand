@@ -10,6 +10,7 @@ use ratatui::{
     style::Style,
     widgets::{Block, Borders, Padding, Paragraph, Widget},
 };
+
 use std::io;
 use tui_textarea::{Input, Key, TextArea};
 
@@ -66,6 +67,8 @@ impl Model<'_> {
                             self.exit = true;
                         }
                         "example" => self.page = ui::Page::Example,
+
+                        "prostite_please" => self.page = ui::Page::ForgiveMePlease,
                         _ => {}
                     }
                     self.command_input.delete_line_by_end();
