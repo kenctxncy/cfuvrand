@@ -55,7 +55,8 @@ impl Widget for &Page<'_> {
                         //text.render(layout[1], buf);
                     }
                     Err(err) => {
-                        eprintln!("Ошибка xD {:?}", err);
+                        Page::default();
+                        eprintln!("Error: {:?}", err);
                     }
                 };
             }
